@@ -1,0 +1,1103 @@
+
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>CVE Alerts</title><style>
+:root {
+  --bg:#eef3f8;
+  --panel:#fff;
+  --soft:#f7fafc;
+  --ink:#182230;
+  --muted:#637083;
+  --line:#dce5ee;
+  --accent:#1f73b7;
+  --accent-soft:#e8f3ff;
+  --critical:#b42318;
+  --ok:#067647;
+  --warn:#b54708;
+  --shadow:0 18px 50px rgba(15,23,42,.08);
+  --radius:18px;
+  --row-height:80px;
+  --list-head-height:43px;
+  --tabs-height:56px;
+  --tabs-gap:12px;
+  --visible-records:6;
+  --records-panel-height:calc(var(--list-head-height) + (var(--visible-records) * var(--row-height)));
+  --cve-panel-height:calc(var(--tabs-height) + var(--tabs-gap) + var(--records-panel-height));
+}
+
+* { box-sizing:border-box; }
+
+html, body {
+  width:100%;
+  min-width:0;
+  overflow-x:hidden;
+}
+
+body {
+  margin:0;
+  background:linear-gradient(180deg,#f8fbff 0%,var(--bg) 100%);
+  color:var(--ink);
+  font-family:"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  font-size:14px;
+}
+
+.shell {
+  width:min(100% - 32px, 1480px);
+  min-height:100vh;
+  min-height:100dvh;
+  margin:0 auto;
+  padding:clamp(12px, 2vw, 22px) 0;
+  display:flex;
+  flex-direction:column;
+}
+
+.topbar {
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto;
+  gap:18px;
+  align-items:center;
+  background:#0f2437;
+  color:#fff;
+  border-radius:24px;
+  padding:20px 24px;
+  box-shadow:var(--shadow);
+}
+
+.topbar h1 {
+  margin:0;
+  font-size:24px;
+}
+
+.title-row {
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+
+.api-dot {
+  width:12px;
+  height:12px;
+  border-radius:50%;
+  background:#dc2626;
+  box-shadow:0 0 0 3px rgba(220,38,38,.18);
+  flex:0 0 auto;
+}
+
+.api-dot.ok {
+  background:#22c55e;
+  box-shadow:0 0 0 3px rgba(34,197,94,.2);
+}
+
+.sub {
+  margin-top:6px;
+  color:#b8c7d6;
+}
+
+.status-strip {
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+  justify-content:flex-end;
+}
+
+.pill {
+  display:inline-flex;
+  gap:6px;
+  padding:7px 11px;
+  border-radius:999px;
+  border:1px solid rgba(255,255,255,.16);
+  background:rgba(255,255,255,.08);
+  font-weight:600;
+  white-space:nowrap;
+}
+
+.toolbar {
+  display:grid;
+  grid-template-columns:repeat(auto-fit, minmax(280px, 1fr));
+  gap:16px;
+  margin-top:16px;
+}
+
+.card {
+  background:var(--panel);
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  padding:16px;
+  box-shadow:var(--shadow);
+  min-width:0;
+}
+
+.card h2 {
+  margin:0 0 12px;
+  font-size:15px;
+}
+
+.card-header {
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  margin:0 0 12px;
+}
+
+.card-header h2 {
+  margin:0;
+}
+
+.collapse-toggle {
+  display:flex;
+  align-items:center;
+  gap:6px;
+  margin:0;
+  color:var(--ink);
+  font-size:12px;
+  font-weight:700;
+}
+
+.collapsible-card.collapsed .collapsible-body {
+  display:none;
+}
+
+body.control-panels-collapsed {
+  --visible-records:9;
+}
+
+body.email-collapsed .bottom-grid {
+  grid-template-columns:minmax(160px,200px) minmax(0,1fr);
+}
+.grid {
+  display:grid;
+  grid-template-columns:repeat(auto-fit, minmax(150px, 1fr));
+  gap:10px;
+}
+
+label {
+  color:var(--muted);
+  font-size:12px;
+  font-weight:700;
+  display:block;
+  margin-bottom:4px;
+}
+
+input[type=number],
+input[type=text] {
+  width:100%;
+  min-width:0;
+  border:1px solid var(--line);
+  background:var(--soft);
+  color:var(--ink);
+  border-radius:12px;
+  padding:9px 10px;
+  outline:none;
+}
+
+body.dark-mode {
+  --bg:#0b1220;
+  --panel:#111827;
+  --soft:#1f2937;
+  --ink:#e5edf7;
+  --muted:#9fb0c4;
+  --line:#2d3b4f;
+  --accent:#62a8f5;
+  --accent-soft:#102a43;
+  --critical:#f97066;
+  --ok:#32d583;
+  --warn:#fdb022;
+  --shadow:0 18px 50px rgba(0,0,0,.32);
+}
+
+body.dark-mode .topbar {
+  background:#020617;
+}
+
+body.dark-mode .list-head,
+body.dark-mode .row:hover,
+body.dark-mode .row.selected {
+  background:#172033;
+}
+
+body.dark-mode .cve {
+  color:#dbeafe;
+}
+
+body.dark-mode .cve.unviewed {
+  color:#22c55e;
+}
+
+body.dark-mode .desc-one-line {
+  color:#c8d5e6;
+}
+
+body.dark-mode button.secondary {
+  background:#1f2937;
+  color:#e5edf7;
+}
+
+body.dark-mode button.ghost {
+  color:#9cc9ff;
+}
+
+body.dark-mode .badge {
+  background:#233044;
+  color:#d8e4f2;
+}
+
+body.dark-mode .badge.critical {
+  background:#3b1110;
+  color:#f97066;
+}
+
+body.dark-mode .badge.ok {
+  background:#083b27;
+  color:#32d583;
+}
+
+body.dark-mode .badge.warn {
+  background:#442b08;
+  color:#fdb022;
+}
+
+body.dark-mode .badge.new {
+  background:#102a56;
+  color:#93c5fd;
+}
+
+body.dark-mode .pdf-status-button.missing {
+  background:#3b1110;
+  color:#f97066;
+}
+
+body.dark-mode .pdf-status-button.ready {
+  background:#083b27;
+  color:#32d583;
+}
+
+.check-row {
+  display:flex;
+  gap:12px;
+  flex-wrap:wrap;
+  align-items:center;
+}
+
+.check-row label {
+  margin:0;
+  font-size:13px;
+  color:var(--ink);
+  font-weight:600;
+}
+
+.buttons {
+  display:flex;
+  gap:9px;
+  flex-wrap:wrap;
+  align-items:center;
+}
+
+button {
+  border:0;
+  background:var(--accent);
+  color:#fff;
+  border-radius:12px;
+  padding:9px 13px;
+  font-weight:700;
+  cursor:pointer;
+  box-shadow:0 8px 18px rgba(31,115,183,.18);
+}
+
+button.secondary {
+  background:#edf2f7;
+  color:#243447;
+  box-shadow:none;
+  border:1px solid var(--line);
+}
+
+button.ghost {
+  background:transparent;
+  color:var(--accent);
+  box-shadow:none;
+  border:1px solid var(--line);
+}
+
+button:disabled {
+  opacity:.45;
+  cursor:not-allowed;
+}
+
+.main-grid {
+  display:grid;
+  grid-template-columns:minmax(620px,1fr) minmax(320px,390px);
+  gap:16px;
+  margin-top:16px;
+  align-items:start;
+  flex:0 0 auto;
+}
+
+.tabs {
+  display:flex;
+  gap:8px;
+  height:var(--tabs-height);
+  padding:8px;
+  background:var(--panel);
+  border:1px solid var(--line);
+  border-radius:18px;
+  box-shadow:var(--shadow);
+  overflow-x:auto;
+}
+
+.tab {
+  color:var(--muted);
+  background:transparent;
+  box-shadow:none;
+  border:1px solid transparent;
+  padding:9px 14px;
+  white-space:nowrap;
+}
+
+.tab.active {
+  color:var(--accent);
+  background:var(--accent-soft);
+  border-color:#c8e3ff;
+}
+
+.list-card {
+  margin-top:12px;
+  padding:0;
+  height:var(--records-panel-height);
+  max-height:var(--records-panel-height);
+  overflow:auto;
+}
+
+.list-head,
+.row {
+  display:grid;
+  grid-template-columns:34px minmax(130px,1.1fr) minmax(90px,.7fr) minmax(90px,.7fr) minmax(95px,.7fr) minmax(180px,2fr) minmax(120px,.8fr);
+  gap:10px;
+  align-items:center;
+  padding:11px 14px;
+  min-width:760px;
+}
+
+.list-head {
+  background:#f7fafc;
+  color:var(--muted);
+  font-size:12px;
+  font-weight:800;
+  border-bottom:1px solid var(--line);
+  text-transform:uppercase;
+}
+
+.row {
+  border-bottom:1px solid var(--line);
+  cursor:pointer;
+  min-height:var(--row-height);
+}
+
+.row:hover,
+.row.selected {
+  background:#f8fbff;
+}
+
+.cve {
+  font-weight:800;
+  color:#11263c;
+}
+
+.cve.unviewed {
+  color:#16a34a;
+}
+
+.muted {
+  color:var(--muted);
+}
+
+.badge {
+  display:inline-flex;
+  width:fit-content;
+  padding:4px 8px;
+  border-radius:999px;
+  background:#edf2f7;
+  color:#334155;
+  font-size:12px;
+  font-weight:800;
+  white-space:nowrap;
+}
+
+.badge.critical {
+  background:#fee4e2;
+  color:var(--critical);
+}
+
+.badge.ok {
+  background:#dcfae6;
+  color:var(--ok);
+}
+
+.badge.warn {
+  background:#fef0c7;
+  color:var(--warn);
+}
+
+.badge.new {
+  background:#dbeafe;
+  color:#1d4ed8;
+}
+
+.pdf-status-button {
+  padding:4px 8px;
+  border-radius:999px;
+  font-size:12px;
+  font-weight:800;
+  box-shadow:none;
+}
+
+.pdf-status-button.missing {
+  background:#fee4e2;
+  color:var(--critical);
+}
+
+.pdf-status-button.ready {
+  background:#dcfae6;
+  color:var(--ok);
+}
+
+.pdf-status-button.ready:disabled {
+  opacity:1;
+  cursor:default;
+}
+
+.desc-one-line {
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  color:#394a5d;
+  min-width:0;
+}
+
+.detail {
+  position:sticky;
+  top:16px;
+  height:var(--cve-panel-height);
+  max-height:var(--cve-panel-height);
+  overflow:auto;
+}
+
+.detail h2 {
+  font-size:19px;
+  margin-bottom:6px;
+}
+
+.big-score {
+  font-size:34px;
+  font-weight:900;
+  color:var(--critical);
+}
+
+.detail-section {
+  border-top:1px solid var(--line);
+  padding-top:12px;
+  margin-top:12px;
+}
+
+.kv {
+  display:grid;
+  grid-template-columns:130px minmax(0,1fr);
+  gap:8px;
+  margin:7px 0;
+}
+
+.kv .k {
+  color:var(--muted);
+  font-weight:700;
+}
+
+.kv .v {
+  word-break:break-word;
+}
+
+.reference-list {
+  max-height:96px;
+  overflow-y:auto;
+  padding-right:6px;
+}
+
+.reference-link {
+  display:block;
+  width:max-content;
+  max-width:100%;
+  margin:0 0 6px;
+  color:var(--accent);
+  font-weight:700;
+  text-decoration:none;
+}
+
+a {
+  color:var(--accent);
+  text-decoration:none;
+  font-weight:700;
+}
+
+.bottom-grid {
+  display:grid;
+  grid-template-columns:minmax(280px,390px) minmax(0,1fr);
+  gap:16px;
+  margin-top:auto;
+  padding-top:16px;
+}
+
+.log {
+  height:190px;
+  overflow:auto;
+  background:#0f172a;
+  color:#dbeafe;
+  border-radius:14px;
+  padding:12px;
+  font-family:Consolas,"Courier New",monospace;
+  font-size:12px;
+}
+
+.log-line {
+  margin-bottom:7px;
+}
+
+.log-line.problem {
+  color:#f87171;
+}
+
+.empty {
+  padding:40px 18px;
+  text-align:center;
+  color:var(--muted);
+}
+
+.spinner {
+  display:none;
+  margin-left:8px;
+  color:var(--muted);
+  font-weight:700;
+}
+
+.busy .spinner {
+  display:inline;
+}
+
+/* Medium screens: stack detail panel below table */
+@media (max-width:1250px) {
+  .main-grid {
+    grid-template-columns:1fr;
+  }
+
+  .detail {
+    position:static;
+    height:auto;
+    max-height:var(--cve-panel-height);
+  }
+
+  .bottom-grid {
+    grid-template-columns:1fr;
+  }
+}
+
+/* Tablet/small laptop */
+@media (max-width:900px) {
+  .topbar {
+    grid-template-columns:1fr;
+  }
+
+  .status-strip {
+    justify-content:flex-start;
+  }
+
+  .shell {
+    width:min(100% - 20px, 1480px);
+  }
+}
+
+/* Phone/narrow window: convert table rows into compact cards */
+@media (max-width:760px) {
+  .list-head {
+    display:none;
+  }
+
+  .list-card {
+    overflow-x:hidden;
+  }
+
+  .row {
+    min-width:0;
+    grid-template-columns:24px 1fr;
+    gap:8px;
+    align-items:start;
+  }
+
+  .row > div:nth-child(3),
+  .row > div:nth-child(4),
+  .row > div:nth-child(5),
+  .row > div:nth-child(6),
+  .row > div:nth-child(7) {
+    grid-column:2;
+  }
+
+  .desc-one-line {
+    white-space:normal;
+    display:-webkit-box;
+    -webkit-line-clamp:2;
+    -webkit-box-orient:vertical;
+  }
+
+  .kv {
+    grid-template-columns:1fr;
+  }
+
+  button {
+    width:auto;
+  }
+}
+</style></head><body><div class="shell"><header class="topbar"><div><div class="title-row"><h1>CVEAlerts</h1><span id="apiStatusDot" class="api-dot" title="NVD API status"></span></div><div class="sub">Vulnerability Scanner - Scan source: <strong>Newly Published only</strong> - National Vulnerability Database</div></div><div class="status-strip"><span class="pill">Last scan: <span id="lastScan">-</span></span><span class="pill">Window: <span id="windowLabel">12h</span></span><span class="pill">Refresh: <span id="refreshLabel">15m</span></span><span class="pill">CVSS >= <span id="thresholdLabel">9.0</span></span></div></header><section class="toolbar"><div id="scanControlsCard" class="card collapsible-card"><div class="card-header"><h2>Scan Controls</h2></div><div class="collapsible-body"><div class="grid"><div><label>Scan window, hours</label><input id="hours" type="number" min="0" step="0.5"></div><div><label>History per vendor</label><input id="historicalData" type="number" min="0" step="1"></div><div><label>CVSS threshold</label><input id="threshold" type="number" min="0" step="0.1"></div><div><label>Refresh every, minutes</label><input id="refresh" type="number" min="0.1" step="0.5"></div><div><label>Sleep/API protection, seconds</label><input id="sleep" type="number" min="0" step="0.5"></div></div><div style="margin-top:12px" class="check-row"><label><input id="vendorCisco" type="checkbox"> Cisco</label><label><input id="vendorFortinet" type="checkbox"> Fortinet</label><label><input id="vendorJuniper" type="checkbox"> Juniper</label><label><input id="vendorHpAruba" type="checkbox"> HP-Aruba</label><label><input id="includeOther" type="checkbox"> Include Other</label></div></div></div><div id="runtimePathsCard" class="card collapsible-card"><div class="card-header"><h2>Runtime Paths</h2></div><div class="collapsible-body"><div><label>Output root</label><input id="outputRoot" type="text"></div><div style="margin-top:10px"><label>State file</label><input id="stateFile" type="text"></div><div style="margin-top:10px"><label>Backups to keep</label><input id="backupsToKeep" type="number" min="1" step="1"></div></div></div><div id="manualActionsCard" class="card collapsible-card"><div class="card-header"><h2>Manual Actions</h2><div class="buttons"><label class="collapse-toggle"><input id="collapseManualActions" type="checkbox"> Collapse top</label><label class="collapse-toggle"><input id="darkMode" type="checkbox"> Dark mode</label></div></div><div class="collapsible-body"><div class="grid"><div><label>Populate History</label><input id="populateHistory" type="number" min="0" step="1"></div></div><div class="buttons" style="margin-top:10px"><button id="scanBtn">Scan now</button><button id="saveSettingsBtn" class="secondary">Save settings</button><button id="populateHistoryBtn" class="secondary">Populate history</button><button id="allNewBtn" class="ghost">Generate all supported new PDFs</button><button id="openOutputBtn" class="secondary">Open output folder</button></div><span class="spinner" id="spinner">Working...</span></div></div></section><main class="main-grid"><section><nav class="tabs" id="tabs"></nav><div class="card list-card"><div class="list-head"><div></div><div>CVE</div><div>Vendor</div><div>CVSS</div><div>State</div><div>Description</div><div>PDF</div></div><div id="rows"><div class="empty">No scan results yet. Use Scan now.</div></div></div></section><aside class="card detail" id="detail"><h2>No CVE selected</h2><p class="muted">Click a compact CVE row to show full details here.</p></aside></main><section class="bottom-grid"><div id="emailAlertsCard" class="card email-card collapsible-card"><div class="card-header"><h2>Email Alerts</h2><label class="collapse-toggle"><input id="collapseEmailAlerts" type="checkbox"> Collapse</label></div><div class="collapsible-body"><div class="check-row"><label><input id="emailEnabled" type="checkbox"> Enable email alerts for new Critical/High CVEs</label></div><p class="muted">SMTP is read from CVEALERTS_* environment variables. Alerts are disabled by default.</p><div class="buttons"><button id="testEmailBtn" class="secondary">Send test email</button></div><div id="emailEnv" class="muted" style="margin-top:10px"></div></div></div><div class="card log-card"><h2>Scan Log / Progress</h2><div class="log" id="log"><div class="log-line">Waiting for first scan...</div></div></div></section></div><script>
+const supportedTabs=["Cisco","Fortinet","Juniper","HP-Aruba"];let snapshot=null,activeTab="Cisco",selectedCve=null,refreshTimer=null,refreshCountdownTimer=null,nextRefreshAt=0,currentRefreshMinutes=null,autoRefreshRunning=false,busyCount=0;const $=id=>document.getElementById(id);const esc=value=>String(value??"").replace(/[&<>"']/g,ch=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[ch]));const badgeClass=value=>{const v=String(value||"").toLowerCase();if(v.includes("critical"))return"critical";if(v==="not generated")return"critical";if(v.includes("generated"))return"ok";if(v.includes("failed")||v.includes("updated"))return"warn";if(v.includes("new"))return"new";return""};function setBusy(on){busyCount+=on?1:-1;if(busyCount<0)busyCount=0;document.body.classList.toggle("busy",busyCount>0);["scanBtn","saveSettingsBtn","populateHistoryBtn","allNewBtn","testEmailBtn"].forEach(id=>$(id).disabled=busyCount>0)}async function api(path,options={}){setBusy(true);try{const response=await fetch(path,options);return await response.json()}finally{setBusy(false)}}function readSettings(){const vendors=[];if($("vendorCisco").checked)vendors.push("Cisco");if($("vendorFortinet").checked)vendors.push("Fortinet");if($("vendorJuniper").checked)vendors.push("Juniper");if($("vendorHpAruba").checked)vendors.push("HP-Aruba");return{hours:parseFloat($("hours").value||"12"),historical_data:parseInt($("historicalData").value||"0",10),populate_history:parseInt($("populateHistory").value||"0",10),backups_to_keep:parseInt($("backupsToKeep").value||"10",10),cvss_threshold:parseFloat($("threshold").value||"9"),refresh_minutes:parseFloat($("refresh").value||"15"),sleep:parseFloat($("sleep").value||"6"),vendors,include_other:$("includeOther").checked,output_root:$("outputRoot").value,state_file:$("stateFile").value,email_enabled:$("emailEnabled").checked,dark_mode:$("darkMode").checked,collapse_scan_controls:$("collapseManualActions").checked,collapse_runtime_paths:$("collapseManualActions").checked,collapse_manual_actions:$("collapseManualActions").checked,collapse_email_alerts:$("collapseEmailAlerts").checked}}function applyCollapseState(settings){const topCollapsed=!!(settings.collapse_manual_actions||settings.collapse_scan_controls||settings.collapse_runtime_paths);const emailCollapsed=!!settings.collapse_email_alerts;const map=[["manualActionsCard",topCollapsed],["scanControlsCard",topCollapsed],["runtimePathsCard",topCollapsed],["emailAlertsCard",emailCollapsed]];for(const [cardId,collapsed] of map){const card=$(cardId);if(card)card.classList.toggle("collapsed",collapsed)}$("collapseManualActions").checked=topCollapsed;$("collapseEmailAlerts").checked=emailCollapsed;document.body.classList.toggle("control-panels-collapsed",topCollapsed);document.body.classList.toggle("email-collapsed",emailCollapsed)}function updateRefreshCountdown(){const label=$("refreshLabel");if(!label)return;if(autoRefreshRunning){label.textContent="scanning";return}if(!nextRefreshAt){label.textContent=currentRefreshMinutes==null?"-":`${currentRefreshMinutes}m`;return}const remaining=Math.max(0,Math.ceil((nextRefreshAt-Date.now())/60000));label.textContent=`${remaining}m`}function writeSettings(settings,resetTimer=false){$("hours").value=settings.hours;$("historicalData").value=settings.historical_data;$("populateHistory").value=settings.populate_history;$("backupsToKeep").value=settings.backups_to_keep;$("threshold").value=settings.cvss_threshold;$("refresh").value=settings.refresh_minutes;$("sleep").value=settings.sleep;$("outputRoot").value=settings.output_root;$("stateFile").value=settings.state_file;$("emailEnabled").checked=!!settings.email_enabled;$("darkMode").checked=!!settings.dark_mode;document.body.classList.toggle("dark-mode",!!settings.dark_mode);applyCollapseState(settings);$("vendorCisco").checked=settings.vendors.includes("Cisco");$("vendorFortinet").checked=settings.vendors.includes("Fortinet");$("vendorJuniper").checked=settings.vendors.includes("Juniper");$("vendorHpAruba").checked=settings.vendors.includes("HP-Aruba");$("includeOther").checked=!!settings.include_other;$("windowLabel").textContent=`${settings.hours}h`;$("thresholdLabel").textContent=settings.cvss_threshold;const nextRefreshMinutes=Number(settings.refresh_minutes||15);if(resetTimer||currentRefreshMinutes===null||nextRefreshMinutes!==currentRefreshMinutes)resetRefreshTimer(nextRefreshMinutes);else updateRefreshCountdown()}function resetRefreshTimer(minutes){if(refreshTimer)clearInterval(refreshTimer);if(refreshCountdownTimer)clearInterval(refreshCountdownTimer);currentRefreshMinutes=Number(minutes||15);const ms=Math.max(.1,currentRefreshMinutes)*60*1000;nextRefreshAt=Date.now()+ms;updateRefreshCountdown();refreshCountdownTimer=setInterval(updateRefreshCountdown,1000);refreshTimer=setInterval(()=>performAutoRefresh(),ms)}function render(data,options={}){snapshot=data;if(!data)return;writeSettings(data.settings,!!options.resetTimer);$("lastScan").textContent=data.last_scan_time||"-";renderTabs(data);renderRows();renderDetail();renderLog(data);renderEmailEnv(data.email_env_status||{})}function renderTabs(data){const tabs=data.tabs||["Cisco","Fortinet","Juniper","HP-Aruba","Other"];if(!tabs.includes(activeTab))activeTab=tabs[0];$("tabs").innerHTML=tabs.map(tab=>`<button class="tab ${tab===activeTab?"active":""}" onclick="activeTab='${esc(tab)}';selectedCve=null;renderTabs(snapshot);renderRows();renderDetail();">${esc(tab)} <span class="badge">${data.counts?.[tab]||0}</span></button>`).join("")}function renderRows(){const records=(snapshot?.records||[]).filter(r=>r.tab===activeTab);if(!records.length){$("rows").innerHTML=`<div class="empty">No ${esc(activeTab)} CVEs in the current scan window.</div>`;return}$("rows").innerHTML=records.map(record=>{const generated=record.pdf_status==="generated";const pdfAction=record.supported?`<button class="secondary" onclick="event.stopPropagation();${generated?"":"generatePdf('"+esc(record.cve_id)+"')"}" ${generated?"disabled":""}>${generated?"Generated":"Generate"}</button>`:`<span class="badge">Display only</span>`;return`<div class="row ${record.cve_id===selectedCve?"selected":""}" onclick="selectRecord('${esc(record.cve_id)}')"><div><input type="checkbox" onclick="event.stopPropagation()"></div><div><div class="cve ${record.viewed?"":"unviewed"}">${esc(record.cve_id)}</div><div class="muted">${esc(record.source_scan)}</div><div class="muted">${esc(record.published||"-")}</div></div><div>${esc(record.vendor)}</div><div><span class="badge critical">${esc(record.cvss_score)} v${esc(record.cvss_version)}</span></div><div><span class="badge ${badgeClass(record.state_status)}">${esc(record.state_status)}</span></div><div class="desc-one-line">${esc(record.description||"No description available")}</div><div>${pdfAction}</div></div>`}).join("")}function markViewed(cveId){const record=(snapshot?.records||[]).find(r=>r.cve_id===cveId);if(record)record.viewed=true;fetch("/api/mark-viewed",{method:"POST",body:JSON.stringify({cve_id:cveId})}).catch(()=>{})}function selectRecord(cveId){selectedCve=cveId;markViewed(cveId);renderRows();renderDetail()}function currentRecord(){return(snapshot?.records||[]).find(r=>r.cve_id===selectedCve)||null}function pdfStatusButton(record){if(!record.supported)return`<span class="badge">not generated</span>`;const generated=record.pdf_status==="generated";return`<button class="pdf-status-button ${generated?"ready":"missing"}" onclick="${generated?"":"generatePdf('"+esc(record.cve_id)+"')"}" ${generated?"disabled":""}>${generated?"generated":"not generated"}</button>`}function referenceRows(record){const links=Array.isArray(record.reference_links)?record.reference_links:[];if(!links.length)return"";const count=links.length;const items=links.map((url,index)=>`<a class="reference-link" href="${esc(url)}" target="_blank" rel="noreferrer" title="${esc(url)}">NVD reference ${index+1}</a>`).join("");return`<div class="kv"><div class="k">Vendor links${count>1?` (${count})`:""}</div><div class="v"><div class="reference-list">${items}</div></div></div>`}function renderDetail(){const record=currentRecord();if(!record){$("detail").innerHTML=`<h2>No CVE selected</h2><p class="muted">Click a compact CVE row to show full details here.</p>`;return}const action=record.supported?`<button onclick="generatePdf('${esc(record.cve_id)}')" ${record.pdf_status==="generated"?"disabled":""}>${record.pdf_status==="generated"?"PDF generated":"Generate PDF"}</button>`:`<button disabled>PDF unavailable for Other</button>`;$("detail").innerHTML=`<h2>${esc(record.cve_id)}</h2><div class="muted">${esc(record.vendor)} - ${esc(record.match_source)}</div><div class="big-score">${esc(record.cvss_score)}</div><span class="badge critical">${esc(record.severity)}</span> <span class="badge ${record.supported?"ok":""}">${record.supported?"Supported vendor":"Unsupported / Other"}</span><div class="detail-section"><p>${esc(record.description||"No description available")}</p></div><div class="detail-section"><div class="kv"><div class="k">Published</div><div class="v">${esc(record.published)}</div></div><div class="kv"><div class="k">Last modified</div><div class="v">${esc(record.last_modified)}</div></div><div class="kv"><div class="k">Source scan</div><div class="v">Newly Published only</div></div><div class="kv"><div class="k">NVD</div><div class="v"><a href="${esc(record.nvd_link)}" target="_blank" rel="noreferrer">Open NVD record</a></div></div>${referenceRows(record)}</div><div class="detail-section"><div class="kv"><div class="k">PDF status</div><div class="v">${pdfStatusButton(record)}</div></div><div class="kv"><div class="k">PDF path</div><div class="v">${esc(record.pdf_path||"-")}</div></div><div class="kv"><div class="k">State</div><div class="v">${esc(record.state_status)}</div></div><div class="kv"><div class="k">Last GUI seen</div><div class="v">${esc(record.last_gui_seen||"-")}</div></div><div class="kv"><div class="k">Last PDF</div><div class="v">${esc(record.last_pdf_generated||"-")}</div></div></div><div class="detail-section buttons">${action}<button class="secondary" onclick="generateVendor('${esc(record.tab)}')" ${record.supported?"":"disabled"}>Generate ${esc(record.tab)} PDFs</button></div>`}function logLineHasProblem(message){const text=String(message||"").toLowerCase();if(/failed=0\b/.test(text))return false;return /(\bfailed\b(?!=0)|\berror\b|\bblocked\b|\brejected\b|rate limit|rate limited|failed local validation|\bwarning\b|inaccessible|corrupt|retry limit|permanent failure)/i.test(text)}function renderLog(data){const lines=data.scan_log||[];$("log").innerHTML=lines.length?lines.map(line=>{const problem=logLineHasProblem(line.message);return`<div class="log-line ${problem?"problem":""}">[${esc(line.time)}] ${esc(line.message)}</div>`}).join(""):`<div class="log-line">Waiting for first scan...</div>`}function renderEmailEnv(status){const present=Object.entries(status).filter(([,ok])=>ok).length,total=Object.entries(status).length;$("emailEnv").textContent=`SMTP env vars present: ${present}/${total}`}async function loadState(){const data=await api("/api/state");render(data,{resetTimer:true});return data}async function applySettings(){render(await api("/api/settings",{method:"POST",body:JSON.stringify(readSettings())}))}async function performScan(saveFirst=true){if(saveFirst)await api("/api/settings",{method:"POST",body:JSON.stringify(readSettings())});render(await api("/api/scan?manual=1"),{resetTimer:true})}async function performAutoRefresh(){if(autoRefreshRunning)return;autoRefreshRunning=true;updateRefreshCountdown();try{const data=await api("/api/scan");autoRefreshRunning=false;render(data,{resetTimer:true})}catch(exc){autoRefreshRunning=false;updateRefreshCountdown();throw exc}}async function generatePdf(cveId){const result=await api("/api/generate-pdf",{method:"POST",body:JSON.stringify({cve_id:cveId})});if(result.snapshot)render(result.snapshot);if(!result.ok)alert(result.error||result.message||"PDF generation failed")}async function generateVendor(vendor){const result=await api("/api/generate-vendor-pdfs",{method:"POST",body:JSON.stringify({vendor})});if(result.snapshot)render(result.snapshot);if(!result.ok)alert("One or more PDFs failed. Check the scan log.")}$("darkMode").onchange=applySettings;["collapseManualActions","collapseEmailAlerts"].forEach(id=>$(id).onchange=applySettings);$("scanBtn").onclick=()=>performScan(true);$("saveSettingsBtn").onclick=applySettings;$("populateHistoryBtn").onclick=async()=>{await api("/api/settings",{method:"POST",body:JSON.stringify(readSettings())});const result=await api("/api/populate-history",{method:"POST",body:JSON.stringify({})});render(result);if(!result.ok)alert(result.error||"Populate history failed. Check the scan log.")};$("allNewBtn").onclick=async()=>{const result=await api("/api/generate-all-new-pdfs",{method:"POST",body:JSON.stringify({})});if(result.snapshot)render(result.snapshot);if(!result.ok)alert("One or more PDFs failed. Check the scan log.")};$("openOutputBtn").onclick=async()=>{const result=await api("/api/open-output",{method:"POST",body:JSON.stringify({})});if(!result.ok)alert(result.error||"Could not open output folder")};$("testEmailBtn").onclick=async()=>{await applySettings();const result=await api("/api/test-email",{method:"POST",body:JSON.stringify({})});if(result.snapshot)render(result.snapshot);alert(result.message||(result.ok?"Email sent":"Email failed"))};loadState();
+</script><script>
+const applyCollapseStateWithVisibleRecords=applyCollapseState;
+function ensureClientLogControl(){
+  const darkMode=$("darkMode");
+  if(!darkMode||$("clientLog"))return;
+  const label=document.createElement("label");
+  label.className="collapse-toggle";
+  label.innerHTML=`<input id="clientLog" type="checkbox"> ClientLog`;
+  darkMode.closest("label")?.before(label);
+  $("clientLog").onchange=applySettings;
+}
+ensureClientLogControl();
+const readSettingsWithClientLog=readSettings;
+readSettings=function(){
+  const settings=readSettingsWithClientLog();
+  settings.client_log_enabled=$("clientLog")?!!$("clientLog").checked:true;
+  return settings;
+};
+applyCollapseState=function(settings){
+  applyCollapseStateWithVisibleRecords(settings);
+  const topCollapsed=!!(settings.collapse_manual_actions||settings.collapse_scan_controls||settings.collapse_runtime_paths);
+  document.documentElement.style.setProperty("--visible-records",topCollapsed?"9":"6");
+};
+function serverDueMs(dueAt,minutes){
+  const parsed=Date.parse(dueAt||"");
+  if(Number.isFinite(parsed))return parsed;
+  return Date.now()+Math.max(.1,Number(minutes||15))*60*1000;
+}
+resetRefreshTimer=function(minutes,dueAt=null){
+  if(refreshTimer)clearTimeout(refreshTimer);
+  if(refreshCountdownTimer)clearInterval(refreshCountdownTimer);
+  currentRefreshMinutes=Number(minutes||15);
+  nextRefreshAt=serverDueMs(dueAt,currentRefreshMinutes);
+  updateRefreshCountdown();
+  refreshCountdownTimer=setInterval(updateRefreshCountdown,1000);
+  const delay=Math.max(1000,nextRefreshAt-Date.now());
+  refreshTimer=setTimeout(()=>performAutoRefresh(),delay);
+};
+writeSettings=function(settings,resetTimer=false,dueAt=null){
+  $("hours").value=settings.hours;$("historicalData").value=settings.historical_data;$("populateHistory").value=settings.populate_history;$("backupsToKeep").value=settings.backups_to_keep;$("threshold").value=settings.cvss_threshold;$("refresh").value=settings.refresh_minutes;$("sleep").value=settings.sleep;$("outputRoot").value=settings.output_root;$("stateFile").value=settings.state_file;$("emailEnabled").checked=!!settings.email_enabled;$("darkMode").checked=!!settings.dark_mode;document.body.classList.toggle("dark-mode",!!settings.dark_mode);applyCollapseState(settings);$("vendorCisco").checked=settings.vendors.includes("Cisco");$("vendorFortinet").checked=settings.vendors.includes("Fortinet");$("vendorJuniper").checked=settings.vendors.includes("Juniper");$("vendorHpAruba").checked=settings.vendors.includes("HP-Aruba");$("includeOther").checked=!!settings.include_other;$("windowLabel").textContent=`${settings.hours}h`;$("thresholdLabel").textContent=settings.cvss_threshold;const nextRefreshMinutes=Number(settings.refresh_minutes||15);const dueChanged=dueAt&&Date.parse(dueAt)!==nextRefreshAt;if(resetTimer||dueChanged||currentRefreshMinutes===null||nextRefreshMinutes!==currentRefreshMinutes)resetRefreshTimer(nextRefreshMinutes,dueAt);else updateRefreshCountdown();
+  if($("clientLog"))$("clientLog").checked=settings.client_log_enabled!==false;
+};
+render=function(data,options={}){
+  snapshot=data;
+  if(!data)return;
+  writeSettings(data.settings,!!options.resetTimer,data.next_auto_scan_due_at);
+  $("lastScan").textContent=data.last_scan_time||"-";
+  renderTabs(data);
+  renderRows();
+  renderDetail();
+  renderLog(data);
+  renderEmailEnv(data.email_env_status||{});
+  const dot=$("apiStatusDot");
+  if(dot){
+    updateApiStatusDot();
+  }
+};
+const uiCleanupStyle=document.createElement("style");
+uiCleanupStyle.textContent=`#allNewBtn{display:none!important}.list-head,.row{grid-template-columns:34px minmax(130px,1.1fr) minmax(90px,.7fr) minmax(90px,.7fr) minmax(95px,.7fr) minmax(180px,2fr)}.list-head>div:last-child{display:none}.api-dot.busy{background:#f59e0b;box-shadow:0 0 0 3px rgba(245,158,11,.22)}a.button{display:inline-flex;align-items:center;justify-content:center;border:0;background:var(--accent);color:#fff;padding:9px 14px;border-radius:12px;font-weight:800;text-decoration:none;box-shadow:0 8px 20px rgba(31,115,183,.18)}a.button.secondary{background:#edf2f7;color:#243447;box-shadow:none}.dark-mode a.button.secondary{background:#1f2937;color:#e5eef7;border:1px solid rgba(255,255,255,.08)}.tab.local-new{border-color:#16a34a;color:#bbf7d0;box-shadow:0 0 0 1px rgba(22,163,74,.85),0 0 18px rgba(22,163,74,.22)}.tab.local-new .badge{background:rgba(22,163,74,.28);color:#dcfce7}.ack-all-cves{width:15px;height:15px;accent-color:#16a34a;cursor:pointer}.pdf-progress-text{margin-top:12px;color:#e5eef7;font-weight:800}.dark-mode .pdf-progress-text{color:#e5eef7}body:not(.dark-mode) .pdf-progress-text{color:#243447}.pdf-action-stack{display:flex;flex-direction:row;gap:9px;align-items:center;flex-wrap:wrap}.pdf-action-stack .button,.pdf-action-stack button{min-width:118px}`;
+document.head.appendChild(uiCleanupStyle);
+const miscLookupStyle=document.createElement("style");
+miscLookupStyle.textContent=`.misc-lookup-button{margin-left:auto;background:linear-gradient(135deg,#2563eb,#4f46e5);color:#fff;border-color:rgba(255,255,255,.18);box-shadow:0 10px 26px rgba(37,99,235,.22);min-width:92px}.misc-lookup-button:hover{filter:brightness(1.05)}.misc-lookup-button:disabled{opacity:.45}`;
+document.head.appendChild(miscLookupStyle);
+let activePdfCveId="";
+function updateApiStatusDot(){
+  const dot=$("apiStatusDot");
+  if(!dot)return;
+  const busy=busyCount>0||autoRefreshRunning||!!snapshot?.active_task;
+  const ok=snapshot?.api_status==="ok"&&!snapshot?.last_error;
+  dot.classList.toggle("busy",!!busy);
+  dot.classList.toggle("ok",!busy&&!!ok);
+  dot.title=busy?`CVEAlerts task running${snapshot?.active_task?": "+snapshot.active_task:""}`:(ok?"NVD API connected and scanning":"NVD API validation or scan failed");
+}
+const setBusyWithStatusDot=setBusy;
+setBusy=function(on){
+  setBusyWithStatusDot(on);
+  updateApiStatusDot();
+};
+function localJsonRead(key,fallback){
+  try{return JSON.parse(localStorage.getItem(key)||JSON.stringify(fallback))}catch(_exc){return fallback}
+}
+function localJsonWrite(key,value){
+  try{localStorage.setItem(key,JSON.stringify(value))}catch(_exc){}
+}
+function loadDownloadedPdfs(){
+  return new Set(localJsonRead("cvealerts_downloaded_pdfs",[]));
+}
+const downloadedPdfs=loadDownloadedPdfs();
+function hasDownloadedPdf(cveId){
+  return downloadedPdfs.has(String(cveId||""));
+}
+function markPdfDownloaded(cveId){
+  const id=String(cveId||"");
+  if(!id)return;
+  downloadedPdfs.add(id);
+  localJsonWrite("cvealerts_downloaded_pdfs",[...downloadedPdfs]);
+  setTimeout(renderDetail,150);
+}
+function loadLocalViewedCves(){
+  return new Set(localJsonRead("cvealerts_viewed_cves",[]));
+}
+const localViewedCves=loadLocalViewedCves();
+function loadAcknowledgedTabs(){
+  const raw=localJsonRead("cvealerts_acknowledged_tabs",{});
+  const mapped={};
+  for(const [tab,ids] of Object.entries(raw||{}))mapped[tab]=new Set(Array.isArray(ids)?ids:[]);
+  return mapped;
+}
+const acknowledgedTabs=loadAcknowledgedTabs();
+function saveAcknowledgedTabs(){
+  const raw={};
+  for(const [tab,ids] of Object.entries(acknowledgedTabs))raw[tab]=[...ids];
+  localJsonWrite("cvealerts_acknowledged_tabs",raw);
+}
+function recordsForTab(tab){
+  return (snapshot?.records||[]).filter(r=>r.tab===tab);
+}
+function isLocallyViewed(cveId){
+  return localViewedCves.has(String(cveId||""));
+}
+function isTabAcknowledged(tab,cveId){
+  return !!acknowledgedTabs[tab]?.has(String(cveId||""));
+}
+function tabHasLocalNew(tab){
+  if(tab===activeTab)return false;
+  return recordsForTab(tab).some(record=>!isLocallyViewed(record.cve_id)&&!isTabAcknowledged(tab,record.cve_id));
+}
+function acknowledgeVendorTab(tab){
+  const ids=recordsForTab(tab).map(record=>String(record.cve_id||"")).filter(Boolean);
+  acknowledgedTabs[tab]=new Set([...(acknowledgedTabs[tab]||new Set()),...ids]);
+  saveAcknowledgedTabs();
+}
+function acknowledgeActiveVendorCves(){
+  const records=recordsForTab(activeTab);
+  for(const record of records)markLocalViewed(record.cve_id);
+  acknowledgeVendorTab(activeTab);
+  renderTabs(snapshot);
+  renderRows();
+  renderDetail();
+}
+renderTabs=function(data){
+  const tabs=data.tabs||["Cisco","Fortinet","Juniper","HP-Aruba","Other","Misc"];
+  if(!tabs.includes(activeTab))activeTab=tabs[0];
+  const tabButtons=tabs.map(tab=>`<button class="tab ${tab===activeTab?"active":""} ${tabHasLocalNew(tab)?"local-new":""}" onclick="activeTab='${esc(tab)}';acknowledgeVendorTab(activeTab);selectedCve=null;renderTabs(snapshot);renderRows();renderDetail();">${esc(tab)} <span class="badge">${data.counts?.[tab]||0}</span></button>`).join("");
+  $("tabs").innerHTML=`${tabButtons}<button class="tab misc-lookup-button" type="button" onclick="event.stopPropagation();promptMiscLookup()">Misc</button>`;
+}
+function updateAckAllCheckbox(){
+  const header=document.querySelector(".list-head>div:first-child");
+  if(!header)return;
+  header.innerHTML=`<input id="ackVendorCves" class="ack-all-cves" type="checkbox" title="Acknowledge all visible CVEs for this vendor">`;
+  const checkbox=$("ackVendorCves");
+  const visible=recordsForTab(activeTab);
+  const hasUnviewed=visible.some(record=>!isLocallyViewed(record.cve_id));
+  checkbox.checked=visible.length>0&&!hasUnviewed;
+  checkbox.disabled=visible.length===0||!hasUnviewed;
+  checkbox.onclick=event=>{
+    event.stopPropagation();
+    acknowledgeActiveVendorCves();
+  };
+}
+renderRows=function(){
+  const records=(snapshot?.records||[]).filter(r=>r.tab===activeTab);
+  if(!records.length){
+    $("rows").innerHTML=`<div class="empty">No ${esc(activeTab)} CVEs in the current scan window.</div>`;
+    updateAckAllCheckbox();
+    return;
+  }
+  $("rows").innerHTML=records.map(record=>`<div class="row ${record.cve_id===selectedCve?"selected":""}" onclick="selectRecord('${esc(record.cve_id)}')"><div><input type="checkbox" onclick="event.stopPropagation()"></div><div><div class="cve ${isLocallyViewed(record.cve_id)?"":"unviewed"}">${esc(record.cve_id)}</div><div class="muted">${esc(record.source_scan)}</div><div class="muted">${esc(record.published||"-")}</div></div><div>${esc(record.vendor)}</div><div><span class="badge critical">${esc(record.cvss_score)} v${esc(record.cvss_version)}</span></div><div><span class="badge ${badgeClass(record.state_status)}">${esc(record.state_status)}</span></div><div class="desc-one-line">${esc(record.description||"No description available")}</div></div>`).join("");
+  updateAckAllCheckbox();
+};
+function markLocalViewed(cveId){
+  const id=String(cveId||"");
+  if(!id)return;
+  localViewedCves.add(id);
+  localJsonWrite("cvealerts_viewed_cves",[...localViewedCves]);
+}
+markViewed=function(cveId){
+  markLocalViewed(cveId);
+  fetch("/api/mark-viewed",{method:"POST",body:JSON.stringify({cve_id:cveId})}).catch(()=>{});
+};
+function pdfDownloadButton(record){
+  if(!record.supported)return`<button class="secondary" disabled>Download unavailable</button>`;
+  const serverPdfPresent=record.pdf_status==="generated"&&!!record.pdf_path;
+  const downloaded=serverPdfPresent&&hasDownloadedPdf(record.cve_id);
+  if(!serverPdfPresent)return`<button class="secondary" disabled>Download PDF</button>`;
+  const encoded=encodeURIComponent(record.cve_id);
+  const downloadUrl=`/api/download-pdf?cve_id=${encoded}`;
+  const viewUrl=`/api/view-pdf?cve_id=${encoded}`;
+  const downloadButton=downloaded?`<button class="secondary" disabled>Download PDF</button>`:`<a class="button secondary" href="${downloadUrl}" download onclick="markPdfDownloaded('${esc(record.cve_id)}')">Download PDF</a>`;
+  const viewButton=downloaded?`<a class="button secondary" href="${viewUrl}" target="_blank" rel="noreferrer">View PDF</a>`:"";
+  return `<span class="pdf-action-stack">${downloadButton}${viewButton}</span>`;
+}
+function pdfProgressText(record){
+  if(!record||String(record.cve_id)!==activePdfCveId)return "";
+  return `<div class="pdf-progress-text">.....Generating PDF.....</div>`;
+}
+function pdfDownloadedText(record){
+  const serverPdfPresent=record?.pdf_status==="generated"&&!!record?.pdf_path;
+  if(!record||String(record.cve_id)===activePdfCveId||!serverPdfPresent||!hasDownloadedPdf(record.cve_id))return "";
+  return `<div class="pdf-progress-text">.....PDF Already Downloaded.....</div>`;
+}
+renderDetail=function(){
+  const record=currentRecord();
+  if(!record){
+    $("detail").innerHTML=`<h2>No CVE selected</h2><p class="muted">Click a compact CVE row to show full details here.</p>`;
+    return;
+  }
+  const generated=record.pdf_status==="generated";
+  const unsupportedLabel=record.tab==="Misc"?"User Misc":"Unsupported / Other";
+  const action=record.supported?`<button onclick="generatePdf('${esc(record.cve_id)}')" ${generated?"disabled":""}>${generated?"PDF generated":"Generate PDF"}</button>`:`<button disabled>PDF unavailable</button>`;
+  $("detail").innerHTML=`<h2>${esc(record.cve_id)}</h2><div class="muted">${esc(record.vendor)} - ${esc(record.match_source)}</div><div class="big-score">${esc(record.cvss_score)}</div><span class="badge critical">${esc(record.severity)}</span> <span class="badge ${record.supported?"ok":""}">${record.supported?"Supported vendor":unsupportedLabel}</span><div class="detail-section"><p>${esc(record.description||"No description available")}</p></div><div class="detail-section"><div class="kv"><div class="k">Published</div><div class="v">${esc(record.published)}</div></div><div class="kv"><div class="k">Last modified</div><div class="v">${esc(record.last_modified)}</div></div><div class="kv"><div class="k">Source scan</div><div class="v">${esc(record.source_scan||"Newly Published only")}</div></div><div class="kv"><div class="k">NVD</div><div class="v"><a href="${esc(record.nvd_link)}" target="_blank" rel="noreferrer">Open NVD record</a></div></div>${referenceRows(record)}</div><div class="detail-section"><div class="kv"><div class="k">PDF status</div><div class="v">${pdfStatusButton(record)}</div></div><div class="kv"><div class="k">PDF path</div><div class="v">${esc(record.pdf_path||"-")}</div></div><div class="kv"><div class="k">State</div><div class="v">${esc(record.state_status)}</div></div><div class="kv"><div class="k">Last GUI seen</div><div class="v">${esc(record.last_gui_seen||"-")}</div></div><div class="kv"><div class="k">Last PDF</div><div class="v">${esc(record.last_pdf_generated||"-")}</div></div></div><div class="detail-section buttons">${action}${pdfDownloadButton(record)}</div>${pdfProgressText(record)}${pdfDownloadedText(record)}`;
+};
+generatePdf=async function(cveId){
+  activePdfCveId=String(cveId||"");
+  renderDetail();
+  let result;
+  try{
+    result=await api("/api/generate-pdf",{method:"POST",body:JSON.stringify({cve_id:cveId})});
+  }catch(error){
+    activePdfCveId="";
+    renderDetail();
+    alert("PDF generation failed");
+    return;
+  }
+  activePdfCveId="";
+  if(result.snapshot){
+    result.snapshot.active_task="";
+    result.snapshot.active_task_started_at="";
+    render(result.snapshot);
+  }else{
+    renderDetail();
+  }
+  if(!result.ok)alert(result.error||result.message||"PDF generation failed");
+};
+function formHasFocus(){
+  const element=document.activeElement;
+  return !!element&&["INPUT","TEXTAREA","SELECT"].includes(element.tagName);
+}
+async function pollState(){
+  if(formHasFocus())return;
+  try{
+    const response=await fetch("/api/state");
+    const data=await response.json();
+    render(data,{});
+  }catch(_exc){}
+}
+setInterval(pollState,30000);
+const notificationStyle=document.createElement("style");
+notificationStyle.textContent=`
+.notification-panel{display:none;margin-top:12px;border-top:1px solid var(--border);padding-top:12px}
+.notification-panel.open{display:block}
+.notification-grid{display:grid;grid-template-columns:1fr;gap:10px}
+.notification-vendors{display:flex;flex-wrap:wrap;gap:10px;margin-top:6px}
+.notification-panel textarea{width:100%;min-height:72px;resize:vertical}
+.subscriber-add{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;align-items:end}
+.subscriber-list{display:grid;gap:8px}
+.subscriber-row{border:1px solid var(--line);border-radius:8px;padding:8px;background:rgba(255,255,255,.04)}
+.subscriber-row.existing{background:rgba(148,163,184,.08)}
+.subscriber-row-top{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:10px;align-items:center}
+.subscriber-email{font-weight:700;word-break:break-all}
+.subscriber-state{font-size:11px;color:var(--muted);font-weight:700}
+.subscriber-row .notification-vendors{margin-top:8px}
+.notification-paths{font-size:11px;line-height:1.45;word-break:break-all}
+.adhoc-select{width:15px;height:15px}
+`;
+document.head.appendChild(notificationStyle);
+const selectedAdhocCves=new Set();
+let notificationSubscriberRows=[];
+function ensureNotificationsUi(){
+  if($("notificationsPanel"))return;
+  const emailEnv=$("emailEnv");
+  if(!emailEnv)return;
+  const buttons=emailEnv.parentElement.querySelector(".buttons");
+  if(buttons&&!$("notificationsBtn")){
+    const btn=document.createElement("button");
+    btn.id="notificationsBtn";
+    btn.className="secondary";
+    btn.type="button";
+    btn.textContent="Notifications";
+    btn.onclick=()=>{$("notificationsPanel").classList.toggle("open")};
+    buttons.appendChild(btn);
+  }
+  if(buttons&&!$("adhocEmailBtn")){
+    const btn=document.createElement("button");
+    btn.id="adhocEmailBtn";
+    btn.className="secondary";
+    btn.type="button";
+    btn.textContent="Adhoc";
+    btn.onclick=sendAdhocEmail;
+    buttons.appendChild(btn);
+  }
+  const panel=document.createElement("div");
+  panel.id="notificationsPanel";
+  panel.className="notification-panel";
+  panel.innerHTML=`<div class="notification-grid"><label><input id="notificationEnabled" type="checkbox"> Enable notification subscribers</label><div class="subscriber-add"><div><label>Add subscriber email address</label><input id="newNotificationEmail" type="text" placeholder="one@example.com"></div><button id="addSubscriberBtn" class="secondary" type="button">Add subscriber</button></div><div><label>Existing subscribers</label><div id="subscriberRows" class="subscriber-list"></div></div><div class="buttons"><button id="saveNotificationsBtn" class="secondary" type="button">Save notifications</button><button id="removeSubscribersBtn" class="secondary" type="button">Remove checked</button><button id="testNotificationBtn" class="secondary" type="button">Send notification test</button></div><div id="notificationStatus" class="muted notification-paths"></div></div>`;
+  emailEnv.parentElement.appendChild(panel);
+  $("addSubscriberBtn").onclick=addNotificationSubscriber;
+  $("removeSubscribersBtn").onclick=removeCheckedSubscribers;
+  $("saveNotificationsBtn").onclick=saveNotifications;
+  $("testNotificationBtn").onclick=testNotification;
+}
+function notificationConfig(){
+  return snapshot?.notifications?.config||{email_enabled:false,subscribers:[]};
+}
+function isValidNotificationEmail(email){
+  return /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(String(email||"").trim());
+}
+function defaultNotificationVendors(){
+  return ["Cisco","Fortinet","Juniper","HP-Aruba"];
+}
+function normalizeSubscriberForUi(subscriber,index){
+  const email=String(subscriber?.email||"").trim();
+  const vendors=Array.isArray(subscriber?.vendors)&&subscriber.vendors.length?subscriber.vendors:defaultNotificationVendors();
+  return{id:String(subscriber?.id||`local-${String(index+1).padStart(3,"0")}`),email,enabled:subscriber?.enabled!==false,vendors,critical_only:subscriber?.critical_only!==false,remove:false,existing:true};
+}
+function renderSubscriberRows(){
+  const container=$("subscriberRows");
+  if(!container)return;
+  if(!notificationSubscriberRows.length){
+    container.innerHTML=`<div class="muted">No subscribers configured.</div>`;
+    return;
+  }
+  container.innerHTML=notificationSubscriberRows.map((sub,index)=>{
+    const vendorSet=new Set(sub.vendors||[]);
+    const vendorChecks=defaultNotificationVendors().map(vendor=>`<label><input type="checkbox" data-vendor="${esc(vendor)}" ${vendorSet.has(vendor)?"checked":""}> ${esc(vendor)}</label>`).join("");
+    return`<div class="subscriber-row ${sub.existing?"existing":""}" data-index="${index}" data-id="${esc(sub.id)}"><div class="subscriber-row-top"><div><div class="subscriber-email">${esc(sub.email)}</div><div class="subscriber-state">${sub.existing?"existing subscriber":"new subscriber"}</div></div><label><input class="subscriber-enabled" type="checkbox" ${sub.enabled?"checked":""}> Enabled</label><label><input class="subscriber-remove" type="checkbox" ${sub.remove?"checked":""}> Remove</label></div><div class="notification-vendors">${vendorChecks}</div></div>`;
+  }).join("");
+}
+function collectSubscriberRows(){
+  const rows=[];
+  document.querySelectorAll(".subscriber-row").forEach((row,index)=>{
+    const source=notificationSubscriberRows[Number(row.dataset.index)]||{};
+    const vendors=[...row.querySelectorAll("input[data-vendor]:checked")].map(input=>input.dataset.vendor).filter(Boolean);
+    rows.push({id:String(source.id||row.dataset.id||`local-${String(index+1).padStart(3,"0")}`),email:String(source.email||"").trim(),enabled:!!row.querySelector(".subscriber-enabled")?.checked,vendors:vendors.length?vendors:defaultNotificationVendors(),critical_only:true,remove:!!row.querySelector(".subscriber-remove")?.checked,existing:!!source.existing});
+  });
+  notificationSubscriberRows=rows;
+  return rows;
+}
+function addNotificationSubscriber(){
+  const input=$("newNotificationEmail");
+  const email=String(input?.value||"").trim();
+  if(!isValidNotificationEmail(email)){
+    alert("Enter one valid subscriber email address.");
+    return;
+  }
+  collectSubscriberRows();
+  if(notificationSubscriberRows.some(sub=>sub.email.toLowerCase()===email.toLowerCase())){
+    alert("That subscriber already exists.");
+    return;
+  }
+  notificationSubscriberRows.push({id:`local-${Date.now()}`,email,enabled:true,vendors:defaultNotificationVendors(),critical_only:true,remove:false,existing:false});
+  input.value="";
+  renderSubscriberRows();
+}
+function removeCheckedSubscribers(){
+  collectSubscriberRows();
+  const before=notificationSubscriberRows.length;
+  notificationSubscriberRows=notificationSubscriberRows.filter(sub=>!sub.remove);
+  renderSubscriberRows();
+  if(before===notificationSubscriberRows.length)alert("Select one or more subscriber Remove checkboxes first.");
+}
+function notificationPayloadFromUi(){
+  const rows=collectSubscriberRows().filter(sub=>!sub.remove&&isValidNotificationEmail(sub.email));
+  return{email_enabled:$("notificationEnabled").checked,default_critical_only:true,subscribers:rows.map((sub,index)=>({id:sub.id||`local-${String(index+1).padStart(3,"0")}`,email:sub.email,enabled:sub.enabled,vendors:sub.vendors&&sub.vendors.length?sub.vendors:defaultNotificationVendors(),critical_only:true}))};
+}
+function renderNotifications(){
+  ensureNotificationsUi();
+  const info=snapshot?.notifications||{};
+  const config=notificationConfig();
+  $("notificationEnabled").checked=!!config.email_enabled;
+  const subscribers=Array.isArray(config.subscribers)?config.subscribers:[];
+  notificationSubscriberRows=subscribers.map(normalizeSubscriberForUi).filter(sub=>sub.email);
+  renderSubscriberRows();
+  const paths=info.paths||{};
+  const smtp=info.smtp_env_status||snapshot?.email_env_status||{};
+  const smtpPresent=Object.entries(smtp).filter(([,ok])=>ok).length;
+  const smtpTotal=Object.entries(smtp).length;
+  $("notificationStatus").innerHTML=`Notification subscribers: ${subscribers.length}<br>SMTP vars present: ${smtpPresent}/${smtpTotal}<br>Config: ${esc(paths.config||"not created yet")}<br>State: ${esc(paths.state||"not created yet")}`;
+}
+async function saveNotifications(){
+  if($("notificationEnabled").checked&&!$("emailEnabled").checked){
+    $("emailEnabled").checked=true;
+    await api("/api/settings",{method:"POST",body:JSON.stringify(readSettings())});
+  }
+  const result=await api("/api/notifications",{method:"POST",body:JSON.stringify(notificationPayloadFromUi())});
+  if(result.snapshot)render(result.snapshot);
+  alert(result.message||(result.ok?"Notification config saved":"Notification config failed"));
+}
+async function testNotification(){
+  const result=await api("/api/test-notification",{method:"POST",body:JSON.stringify({})});
+  if(result.snapshot)render(result.snapshot);
+  alert(result.message||(result.ok?"Notification test sent":"Notification test failed"));
+}
+function toggleAdhocSelection(cveId,checked){
+  const id=String(cveId||"");
+  if(!id)return;
+  if(checked)selectedAdhocCves.add(id);else selectedAdhocCves.delete(id);
+}
+function clearAdhocSelections(){
+  selectedAdhocCves.clear();
+  document.querySelectorAll(".adhoc-select").forEach(input=>{input.checked=false});
+}
+async function promptMiscLookup(){
+  const entered=prompt("Enter CVE ID");
+  if(entered===null)return;
+  const result=await api("/api/misc-lookup",{method:"POST",body:JSON.stringify({cve_id:entered})});
+  if(result.snapshot){
+    if(result.ok)activeTab="Misc";
+    render(result.snapshot);
+  }
+  alert(result.message||(result.ok?"CVE added to Misc":"Misc lookup failed"));
+}
+renderRows=function(){
+  const records=(snapshot?.records||[]).filter(r=>r.tab===activeTab);
+  if(!records.length){
+    $("rows").innerHTML=`<div class="empty">No ${esc(activeTab)} CVEs in the current scan window.</div>`;
+    updateAckAllCheckbox();
+    return;
+  }
+  $("rows").innerHTML=records.map(record=>{
+    const id=String(record.cve_id||"");
+    const checked=selectedAdhocCves.has(id)?"checked":"";
+    return `<div class="row ${record.cve_id===selectedCve?"selected":""}" onclick="selectRecord('${esc(record.cve_id)}')"><div><input class="adhoc-select" type="checkbox" ${checked} onclick="event.stopPropagation();toggleAdhocSelection('${esc(record.cve_id)}',this.checked)" title="Select this CVE for adhoc email"></div><div><div class="cve ${isLocallyViewed(record.cve_id)?"":"unviewed"}">${esc(record.cve_id)}</div><div class="muted">${esc(record.source_scan)}</div><div class="muted">${esc(record.published||"-")}</div></div><div>${esc(record.vendor)}</div><div><span class="badge critical">${esc(record.cvss_score)} v${esc(record.cvss_version)}</span></div><div><span class="badge ${badgeClass(record.state_status)}">${esc(record.state_status)}</span></div><div class="desc-one-line">${esc(record.description||"No description available")}</div></div>`;
+  }).join("");
+  updateAckAllCheckbox();
+};
+async function sendAdhocEmail(){
+  const selected=[...selectedAdhocCves];
+  if(selected.length!==1){
+    const message=selected.length===0?"Select exactly one CVE record before using Adhoc.":"Adhoc email supports exactly one selected CVE record.";
+    alert(message);
+    await api("/api/adhoc-email",{method:"POST",body:JSON.stringify({cve_ids:selected,recipient:""})}).then(result=>{if(result.snapshot)render(result.snapshot)}).catch(()=>{});
+    return;
+  }
+  const recipient=prompt(`Send ${selected[0]} to email address:`);
+  if(recipient===null)return;
+  const result=await api("/api/adhoc-email",{method:"POST",body:JSON.stringify({cve_ids:selected,recipient})});
+  if(result.snapshot)render(result.snapshot);
+  alert(result.message||(result.ok?"Adhoc email sent":"Adhoc email failed"));
+  clearAdhocSelections();
+  renderRows();
+}
+const renderWithNotifications=render;
+render=function(data,options={}){
+  renderWithNotifications(data,options);
+  renderNotifications();
+};
+ensureNotificationsUi();
+</script></body></html>

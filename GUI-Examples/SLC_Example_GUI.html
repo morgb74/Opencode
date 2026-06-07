@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>EOS Smart Licensing Assistant</title>
+<style>
+    :root {
+      --bg: #0f172a;
+      --panel: #111827;
+      --panel-2: #1f2937;
+      --text: #e5e7eb;
+      --muted: #9ca3af;
+      --line: #374151;
+      --green: #22c55e;
+      --green-bg: rgba(34,197,94,.13);
+      --amber: #f59e0b;
+      --amber-bg: rgba(245,158,11,.14);
+      --red: #ef4444;
+      --red-bg: rgba(239,68,68,.14);
+      --blue: #60a5fa;
+      --blue-bg: rgba(96,165,250,.14);
+      --purple: #a78bfa;
+      --purple-bg: rgba(167,139,250,.14);
+      --shadow: 0 16px 40px rgba(0,0,0,.35);
+      --radius: 18px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: Inter, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+      background:
+        radial-gradient(circle at top left, rgba(96,165,250,.14), transparent 30%),
+        radial-gradient(circle at top right, rgba(167,139,250,.12), transparent 28%),
+        var(--bg);
+      color: var(--text);
+    }
+
+    .page {
+      max-width: 1440px;
+      margin: 0 auto;
+      padding: 36px 28px 60px;
+    }
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      gap: 24px;
+      align-items: flex-start;
+      margin-bottom: 28px;
+    }
+
+    .eyebrow {
+      color: var(--blue);
+      font-weight: 700;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      font-size: 12px;
+      margin-bottom: 8px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 34px;
+      letter-spacing: -.03em;
+    }
+
+    .subtitle {
+      color: var(--muted);
+      margin-top: 9px;
+      line-height: 1.45;
+    }
+
+    .meta {
+      background: rgba(17,24,39,.72);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 16px 18px;
+      min-width: 280px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .meta strong { color: var(--text); }
+
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(150px, 1fr));
+      gap: 14px;
+      margin-bottom: 24px;
+    }
+
+    .scenario-cards {
+      grid-template-columns: repeat(7, minmax(120px, 1fr));
+    }
+
+    .card {
+      background: rgba(17,24,39,.82);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 18px;
+      box-shadow: var(--shadow);
+    }
+
+    .metric {
+      font-size: 28px;
+      font-weight: 800;
+      margin-bottom: 4px;
+    }
+
+    .label {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .section {
+      background: rgba(17,24,39,.82);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      margin-top: 18px;
+      overflow: hidden;
+    }
+
+    .section-title {
+      padding: 18px 20px;
+      border-bottom: 1px solid var(--line);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .section-title h2 {
+      margin: 0;
+      font-size: 18px;
+      letter-spacing: -.01em;
+    }
+
+    .section-title span {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    th, td {
+      padding: 14px 16px;
+      text-align: left;
+      border-bottom: 1px solid rgba(55,65,81,.75);
+      vertical-align: top;
+      font-size: 14px;
+    }
+
+    th {
+      color: #cbd5e1;
+      background: rgba(31,41,55,.72);
+      font-size: 12px;
+      letter-spacing: .04em;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+
+    tr:hover td {
+      background: rgba(96,165,250,.045);
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      border-radius: 999px;
+      padding: 5px 10px;
+      font-size: 12px;
+      font-weight: 700;
+      white-space: nowrap;
+      border: 1px solid transparent;
+    }
+
+    .pass {
+      color: var(--green);
+      background: var(--green-bg);
+      border-color: rgba(34,197,94,.28);
+    }
+
+    .warning {
+      color: var(--amber);
+      background: var(--amber-bg);
+      border-color: rgba(245,158,11,.3);
+    }
+
+    .blocker {
+      color: var(--red);
+      background: var(--red-bg);
+      border-color: rgba(239,68,68,.3);
+    }
+
+    .version {
+      color: var(--purple);
+      background: var(--purple-bg);
+      border-color: rgba(167,139,250,.3);
+    }
+
+    .pill {
+      background: rgba(96,165,250,.12);
+      color: #bfdbfe;
+      border: 1px solid rgba(96,165,250,.28);
+      border-radius: 999px;
+      padding: 4px 9px;
+      font-size: 12px;
+      display: inline-block;
+      margin: 2px 0;
+    }
+
+    .true {
+      color: var(--green);
+      font-weight: 700;
+    }
+
+    .false {
+      color: var(--red);
+      font-weight: 700;
+    }
+
+    details {
+      padding: 0;
+    }
+
+    summary {
+      cursor: pointer;
+      color: #bfdbfe;
+      font-weight: 700;
+      list-style: none;
+    }
+
+    summary::-webkit-details-marker { display: none; }
+
+    .detail-grid {
+      display: grid;
+      grid-template-columns: 1fr 2fr;
+      gap: 14px;
+      padding: 18px 20px 22px;
+    }
+
+    .detail-card {
+      background: rgba(31,41,55,.72);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 14px;
+    }
+
+    .detail-card h3 {
+      font-size: 14px;
+      margin: 0 0 10px;
+      color: #dbeafe;
+    }
+
+    .kv {
+      display: grid;
+      grid-template-columns: 1.35fr 1fr;
+      gap: 8px 12px;
+      font-size: 13px;
+      line-height: 1.35;
+    }
+
+    .kv div:nth-child(odd) {
+      color: var(--muted);
+    }
+
+    code, pre {
+      font-family: Consolas, Monaco, "Courier New", monospace;
+    }
+
+    pre {
+      background: #020617;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      color: #d1d5db;
+      padding: 12px;
+      overflow: auto;
+      font-size: 12px;
+      line-height: 1.45;
+      margin: 0;
+    }
+
+    .footer {
+      color: var(--muted);
+      font-size: 12px;
+      margin-top: 18px;
+      text-align: right;
+    }
+
+    @media (max-width: 1100px) {
+      .cards { grid-template-columns: repeat(2, 1fr); }
+      .detail-grid { grid-template-columns: 1fr; }
+      .header { flex-direction: column; }
+      .meta { width: 100%; }
+    }
+  
+    @page { size: 1440px 1700px; margin: 0; }
+    html, body { width: 1440px; }
+    
+    .device-table-scroll {
+      max-height: 720px;
+      overflow-y: auto;
+      overflow-x: hidden;
+    }
+
+    .device-table-scroll thead th {
+      position: sticky;
+      top: 0;
+      z-index: 2;
+    }
+
+    .device-table-scroll::-webkit-scrollbar {
+      width: 10px;
+    }
+
+    .device-table-scroll::-webkit-scrollbar-track {
+      background: rgba(15,23,42,.9);
+      border-left: 1px solid var(--line);
+    }
+
+    .device-table-scroll::-webkit-scrollbar-thumb {
+      background: rgba(96,165,250,.45);
+      border-radius: 999px;
+      border: 2px solid rgba(15,23,42,.9);
+    }
+
+  
+    .section-actions {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .export-btn {
+      background: rgba(96,165,250,.12);
+      color: #bfdbfe;
+      border: 1px solid rgba(96,165,250,.35);
+      border-radius: 999px;
+      padding: 7px 12px;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      font-family: inherit;
+    }
+
+    .export-btn:hover {
+      background: rgba(96,165,250,.2);
+    }
+
+    .header-main {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .header .scenario-cards {
+      margin-top: 28px;
+      margin-bottom: 0;
+    }
+
+    .header {
+      margin-bottom: 18px;
+    }
+
+    .header .meta {
+      margin-top: 62px;
+    }
+
+  
+    .section-title-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+</style>
+</head>
+<body>
+<main class="page">
+<header class="header">
+<div class="header-main">
+<h1>EOS Smart Licensing Assistant</h1>
+<section class="cards scenario-cards">
+<div class="card">
+<div class="metric">1</div>
+<div class="label">Files Processed</div>
+</div>
+<div class="card">
+<div class="metric">0</div>
+<div class="label">Scenario A</div>
+</div>
+<div class="card">
+<div class="metric">0</div>
+<div class="label">Scenario B</div>
+</div>
+<div class="card">
+<div class="metric">10</div>
+<div class="label">Scenario C</div>
+</div>
+<div class="card">
+<div class="metric">0</div>
+<div class="label">Scenario D</div>
+</div>
+<div class="card">
+<div class="metric">0</div>
+<div class="label">Scenario E</div>
+</div>
+<div class="card">
+<div class="metric">0</div>
+<div class="label">Scenario F</div>
+</div>
+</section></div>
+<div class="meta">
+<div><strong>Generated:</strong> 2026-06-02 18:24 BST</div>
+<div><strong>Data Directory:</strong> <code>c:\devops\data</code></div>
+<div><strong>Input Pattern:</strong> <code>*.txt</code></div>
+<div><strong>Rules DB:</strong> <code>SLC_Database.json</code></div>
+<div><strong>Source File:</strong> <code>Adhoc-Commands.txt</code></div>
+</div>
+</header>
+<section class="section">
+<div class="section-title"><div class="section-title-left"><h2>Device Results</h2><button class="export-btn" type="button">File Open</button></div>
+
+<div class="section-actions"><button class="export-btn" type="button">Export to CSV</button><button class="export-btn" type="button">Export to TXT</button><button class="export-btn" type="button">Export to PDF</button><button class="export-btn" type="button">EOS Pie</button></div></div>
+<div class="device-table-scroll"><table>
+<thead>
+<tr>
+<th>Hostname</th>
+<th>Scenario</th>
+<th>Outcome</th>
+<th>Upgrade</th>
+<th>Action</th>
+<th>Remediation</th>
+<th>Software Version</th>
+</tr>
+</thead>
+<tbody><tr><td><strong>ABC-Corp</strong></td><td><span class="pill">Scenario C</span></td><td><code>upgrade_allowed_smart_licensing_required</code></td><td><span class="true">Allowed</span></td><td>Progress to EOS17 upgrade</td><td>Configure Smart Licensing ASAP before/after upgrade</td><td><code>17.12.06</code></td></tr><tr><td><strong>BBC-Corp</strong></td><td><span class="pill">Scenario C</span></td><td><code>upgrade_allowed_smart_licensing_required</code></td><td><span class="true">Allowed</span></td><td>Progress to EOS17 upgrade</td><td>Configure Smart Licensing ASAP before/after upgrade</td><td><code>17.12.06</code></td></tr><tr><td><strong>DDC-Corp</strong></td><td><span class="pill">Scenario C</span></td><td><code>upgrade_allowed_smart_licensing_required</code></td><td><span class="true">Allowed</span></td><td>Progress to EOS17 upgrade</td><td>Configure Smart Licensing ASAP before/after upgrade</td><td><code>17.12.06</code></td></tr><tr><td><strong>EEC-Corp</strong></td><td><span class="pill">Scenario C</span></td><td><code>upgrade_allowed_smart_licensing_required</code></td><td><span class="true">Allowed</span></td><td>Progress to EOS17 upgrade</td><td>Configure Smart Licensing ASAP before/after upgrade</td><td><code>17.12.06</code></td></tr><tr><td><strong>FFC-Corp</strong></td><td><span class="pill">Scenario C</span></td><td><code>upgrade_allowed_smart_licensing_required</code></td><td><span class="true">Allowed</span></td><td>Progress to EOS17 upgrade</td><td>Configure Smart Licensing ASAP before/after upgrade</td><td><code>17.12.06</code></td></tr><tr><td><strong>GGC-Corp</strong></td><td><span class="pill">Scenario C</span></td><td><code>upgrade_allowed_smart_licensing_required</code></td><td><span class="true">Allowed</span></td><td>Progress to EOS17 upgrade</td><td>Configure Smart Licensing ASAP before/after upgrade</td><td><code>17.12.06</code></td></tr><tr><td><strong>HHC-Corp</strong></td><td><span class="pill">Scenario C</span></td><td><code>upgrade_allowed_smart_licensing_required</code></td><td><span class="true">Allowed</span></td><td>Progress to EOS17 upgrade</td><td>Configure Smart Licensing ASAP before/after upgrade</td><td><code>17.12.06</code></td></tr><tr><td><strong>IIC-Corp</strong></td><td><span class="pill">Scenario C</span></td><td><code>upgrade_allowed_smart_licensing_required</code></td><td><span class="true">Allowed</span></td><td>Progress to EOS17 upgrade</td><td>Configure Smart Licensing ASAP before/after upgrade</td><td><code>17.12.06</code></td></tr><tr><td><strong>JJC-Corp</strong></td><td><span class="pill">Scenario C</span></td><td><code>upgrade_allowed_smart_licensing_required</code></td><td><span class="true">Allowed</span></td><td>Progress to EOS17 upgrade</td><td>Configure Smart Licensing ASAP before/after upgrade</td><td><code>17.12.06</code></td></tr><tr><td><strong>KKC-Corp</strong></td><td><span class="pill">Scenario C</span></td><td><code>upgrade_allowed_smart_licensing_required</code></td><td><span class="true">Allowed</span></td><td>Progress to EOS17 upgrade</td><td>Configure Smart Licensing ASAP before/after upgrade</td><td><code>17.12.06</code></td></tr></tbody>
+</table></div>
+</section>
+<section class="section">
+<div class="section-title">
+<h2>Detailed Device Results</h2>
+<div class="section-actions"><button class="export-btn" type="button">Edit .JSON DB</button></div></div>
+<details open="">
+<summary style="padding: 18px 20px;">ABC-Corp — Scenario C evidence</summary>
+<div class="detail-grid">
+<div class="detail-card">
+<h3>Smart License Details</h3>
+<div class="kv">
+<div>ios_xe_version</div><div><code>17.12.06</code></div>
+<div>smart_ack_received</div><div><span class="false">false</span></div>
+<div>license_transport_type</div><div><code>cslu</code></div>
+<div>license_type_permanent_or_perpetual</div><div><span class="false">false</span></div>
+<div>configured_pak_rtu_feature_present</div><div><span class="false">false</span></div>
+<div>configured_boot_level_present</div><div><span class="true">true</span></div>
+<div>boot_level</div><div><code>network-advantage</code></div>
+<div>lic_file_present</div><div><span class="false">false</span></div>
+<div>pak_snapshot_state</div><div><code>unsupported</code></div>
+<div>dlc_state</div><div><code>registration_pending</code></div>
+</div>
+</div>
+<div class="detail-card">
+<h3>Evidence Summary</h3>
+<pre>Last ACK received: &lt;none&gt;
+no license feature hseck9
+license boot level network-advantage
+No such file
+Platform doesn't Support PAK License snapshot
+DLC License information not collected as Device Registration pending with the Smart Account</pre>
+</div>
+</div>
+</details>
+</section>
+</main>
+</body>
+</html>
